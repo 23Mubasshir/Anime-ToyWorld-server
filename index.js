@@ -27,6 +27,44 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+    const toyCollection = client.db('toyDB').collection('toy');
+
+    //Create toys
+    app.post('/add-toys', async (req, res) => {
+      const newToy = req.body;
+      console.log(newToy);
+      const result = await toyCollection.insertOne(newToy);
+      if (result?.insertedId) {
+        return res.status(200).send(result);
+      } else {
+        return res.status(404).send({
+          message: "can not insert try again later",
+          status: false,
+        });
+      }
+  })
+     //get all toys
+     app.get("/all-toys", async (req, res) => {
+      const result = await toyCollection
+        .find({})
+        // .sort({ createdAt: -1 })
+        .toArray();
+      res.send(result);
+    });
+
+    //get toys by category
+    // app.get("/all-toys/:category", async (req, res) => {
+    //   console.log(req.params.id);
+    //   const Toys = await jobsCollection
+    //     .find({
+    //       status: req.params.category,
+    //     })
+    //     .toArray();
+    //   res.send(jobs);
+    // });
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
@@ -34,7 +72,7 @@ async function run() {
     );
   } finally {
     // Ensures that the client will close when you finish/error
-    await client.close();
+    // await client.close();
   }
 }
 run().catch(console.dir);
