@@ -29,6 +29,8 @@ async function run() {
     await client.connect();
 
     const toyCollection = client.db('toyDB').collection('toy');
+    const ascending = { price: 1};
+    const descending = { price: -1};
 
     //Create toys
     app.post('/add-toys', async (req, res) => {
@@ -48,21 +50,22 @@ async function run() {
      app.get("/all-toys", async (req, res) => {
       const result = await toyCollection
         .find({})
-        // .sort({ createdAt: -1 })
         .toArray();
       res.send(result);
     });
 
-    //get toys by category
-    // app.get("/all-toys/:category", async (req, res) => {
-    //   console.log(req.params.id);
-    //   const Toys = await jobsCollection
-    //     .find({
-    //       status: req.params.category,
-    //     })
-    //     .toArray();
-    //   res.send(jobs);
-    // });
+    // get toys by ascending / descending
+    app.get("/all-toys/:category", async (req, res) => {
+      // console.log(req.params.category);
+      if (req.params.category == "ascending"){
+        const result = await toyCollection.find().sort(ascending).toArray();
+        res.send(result);
+      }
+      else if (req.params.category == "descending"){
+        const result = await toyCollection.find().sort(descending).toArray();
+        res.send(result);
+       }
+    });
 
 
     // Send a ping to confirm a successful connection
