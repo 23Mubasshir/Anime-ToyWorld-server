@@ -68,7 +68,19 @@ async function run() {
       }
     });
 
-    
+    // get my toys by ascending or descending
+    app.get("/my-toys/:email/:category", async (req, res) => {
+      console.log(req.params.category);
+      console.log(req.params.email);
+
+      if (req.params.category == "descending") {
+        const result = await toyCollection.find().sort(descending).toArray();
+        res.send(result);
+      } else if (req.params.category == "ascending") {
+        const result = await toyCollection.find().sort(ascending).toArray();
+        res.send(result);
+      }
+    });
 
     // get my toys by gmail
     app.get("/my-toys/:email", async (req, res) => {
