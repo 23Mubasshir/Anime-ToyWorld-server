@@ -108,28 +108,39 @@ async function run() {
     });
 
     // delete a toy
-    app.delete('/my-toys/:id', async (req, res) => {
+    app.delete("/my-toys/:id", async (req, res) => {
       const id = req.params.id;
-      const query = { _id: new ObjectId(id) }
+      const query = { _id: new ObjectId(id) };
       const result = await toyCollection.deleteOne(query);
       res.send(result);
-  })
+    });
 
     // Update my toy
-    app.get('/update-toy/:id', async (req, res) => {
+    app.put("/update-toy/:id", async (req, res) => {
       const id = req.params.id;
-      const query = { _id: new ObjectId(id) }
-      const result = await toyCollection.findOne(query);
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedToy = req.body;
+
+      const toy = {
+        $set: {
+          quantity: updatedToy.quantity,
+          details: updatedToy.details,
+          price: updatedToy.price,
+        },
+      };
+
+      const result = await toyCollection.updateOne(filter, toy, options);
       res.send(result);
-  })
+    });
 
     // View single toy details
-    app.get('/toy/:id', async (req, res) => {
+    app.get("/toy/:id", async (req, res) => {
       const id = req.params.id;
-      const query = { _id: new ObjectId(id) }
+      const query = { _id: new ObjectId(id) };
       const result = await toyCollection.findOne(query);
       res.send(result);
-  })
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
