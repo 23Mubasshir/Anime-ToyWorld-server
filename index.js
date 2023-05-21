@@ -27,6 +27,10 @@ async function run() {
     const toyCollection = client.db("toyDB").collection("toy");
     const ascending = { price: 1 };
     const descending = { price: -1 };
+    //for search
+    const indexKeys = { name: 1 }; // Replace field1 and field2 with your actual field names
+    const indexOptions = { name: "toyName" }; // Replace index_name with the desired index name
+    const result = await toyCollection.createIndex(indexKeys, indexOptions);
 
     //Create toys
     app.post("/add-toys", async (req, res) => {
@@ -48,7 +52,7 @@ async function run() {
       res.send(result);
     });
 
-    // get toys by ascending / descending
+    // get all toys by ascending / descending
     app.get("/all-toys/:category", async (req, res) => {
       // console.log(req.params.category);
       if (req.params.category == "ascending") {
@@ -91,6 +95,16 @@ async function run() {
         })
         .toArray();
       res.send(jobs);
+    });
+
+    // get toys by search
+    app.get("/getToysByText/:text", async (req, res) => {
+      const text = req.params.text;
+      console.log(text);
+      const result = await toyCollection
+        .find({ name: { $regex: text, $options: "i" } })
+        .toArray();
+      res.send(result);
     });
 
     // Send a ping to confirm a successful connection
